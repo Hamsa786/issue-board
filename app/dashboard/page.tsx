@@ -155,10 +155,11 @@ export default function Dashboard() {
               <h3 className="text-xl font-bold">{issue.title}</h3>
               <p className="text-gray-600">{issue.description}</p>
               <div className="flex gap-4 mt-2 text-sm">
-                <span className="font-semibold">Priority: {issue.priority}</span>
-                <span className="font-semibold">Status: {issue.status}</span>
-                <span>Assigned: {issue.assignedTo || 'Unassigned'}</span>
-                <span>By: {issue.createdBy}</span>
+                 <span className="font-semibold">Priority: {issue.priority}</span>
+                 <span className="font-semibold">Status: {issue.status}</span>
+                 <span>Assigned: {issue.assignedTo || 'Unassigned'}</span>
+                 <span>Created: {issue.createdAt?.toDate().toLocaleString()}</span>
+                 <span>By: {issue.createdBy}</span>
               </div>
               <div className="flex gap-2 mt-3">
                 {issue.status !== 'Open' && (
