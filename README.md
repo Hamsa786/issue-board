@@ -1,6 +1,6 @@
 # Smart Issue Board
 
-Live Demo: [Your Vercel URL here]
+Live Demo: https://issue-board-flame.vercel.app
 
 ## Why I Chose Next.js
 
