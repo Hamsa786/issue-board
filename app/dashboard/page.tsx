@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { auth, db } from '../../firebase';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
-import { collection, addDoc, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
@@ -74,13 +74,16 @@ export default function Dashboard() {
     fetchIssues();
   };
 
-  const handleStatusChange = async (issue: any, newStatus: string) => {
+  const handleStatusChange = async (issueId: string, issue: any, newStatus: string) => {
     if (issue.status === 'Open' && newStatus === 'Done') {
       alert('Cannot move directly from Open to Done. Please set to In Progress first.');
       return;
     }
-    // In a real app, update Firestore here
-    alert('Status update would happen here');
+    
+    await updateDoc(doc(db, 'issues', issueId), {
+      status: newStatus
+    });
+    fetchIssues();
   };
 
   const filteredIssues = issues.filter(issue => {
@@ -156,6 +159,20 @@ export default function Dashboard() {
                 <span className="font-semibold">Status: {issue.status}</span>
                 <span>Assigned: {issue.assignedTo || 'Unassigned'}</span>
                 <span>By: {issue.createdBy}</span>
+              </div>
+              <div className="flex gap-2 mt-3">
+                {issue.status !== 'Open' && (
+                  <button onClick={() => handleStatusChange(issue.id, issue, 'Open')} 
+                    className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600">Open</button>
+                )}
+                {issue.status !== 'In Progress' && (
+                  <button onClick={() => handleStatusChange(issue.id, issue, 'In Progress')} 
+                    className="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600">In Progress</button>
+                )}
+                {issue.status !== 'Done' && (
+                  <button onClick={() => handleStatusChange(issue.id, issue, 'Done')} 
+                    className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600">Done</button>
+                )}
               </div>
             </div>
           ))}
