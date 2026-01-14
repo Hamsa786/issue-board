@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Smart Issue Board
 
-## Getting Started
+Live Demo: [Your Vercel URL here]
 
-First, run the development server:
+## Why I Chose Next.js
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+I chose Next.js because:
+- **Fast setup**: App Router makes routing simple with folder structure
+- **Vercel integration**: Seamless deployment to Vercel (one-click deploy)
+- **Built-in optimization**: Automatic code splitting and fast performance
+- **React familiarity**: I'm comfortable with React and Next.js extends it well
+- **TypeScript support**: Out of the box, which helps catch errors early
+
+## Firestore Data Structure
+```
+issues (collection)
+  └── {issueId} (document)
+      ├── title: string
+      ├── description: string
+      ├── priority: "Low" | "Medium" | "High"
+      ├── status: "Open" | "In Progress" | "Done"
+      ├── assignedTo: string
+      ├── createdAt: Timestamp
+      └── createdBy: string (user email)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Why this structure:**
+- Simple flat structure - easy to query and filter
+- All issue data in one document - no complex joins needed
+- `createdAt` as Timestamp allows easy sorting (newest first)
+- `createdBy` tracks who created each issue
+- No separate users collection needed since we only store email
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Similar Issue Handling
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+I implemented a simple string matching approach:
+- When creating an issue, check if the new title contains (or is contained in) any existing issue title
+- Case-insensitive comparison for better matching
+- If found, show a browser confirmation dialog with the similar issue title
+- User can choose to proceed or cancel
 
-## Learn More
+**Why this approach:**
+- Quick to implement and works for most cases
+- No external libraries needed
+- Browser `confirm()` is simple and clear
+- Real-time check before submission
 
-To learn more about Next.js, take a look at the following resources:
+**Future improvements:**
+- Use fuzzy string matching (Levenshtein distance)
+- Check description similarity too
+- Show list of all similar issues, not just first match
+- Better UI (modal instead of browser confirm)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## What Was Confusing/Challenging
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Firebase configuration with environment variables**: Initially hardcoded values, then had to refactor for Vercel deployment
+2. **Status transition logic**: Had to think about where to validate (frontend vs backend rules)
+3. **TypeScript types**: Some Firebase types needed `any` due to time constraints
+4. **Similar issue detection**: Balancing simplicity vs accuracy
 
-## Deploy on Vercel
+## What I Would Improve Next
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Better similar issue detection**: Use Levenshtein distance or TF-IDF for smarter matching
+2. **Real-time updates**: Use Firestore `onSnapshot` instead of manual refresh
+3. **Better UI/UX**: 
+   - Loading states
+   - Toast notifications instead of alerts
+   - Drag-and-drop for status changes
+   - Issue detail modal
+4. **Firestore security rules**: Currently in test mode, needs proper authentication rules
+5. **Edit/Delete functionality**: Currently can only create issues
+6. **Search functionality**: Filter by title/description text
+7. **User profiles**: Allow setting display name instead of just email
+8. **Comments on issues**: Discussion thread for each issue
+9. **Pagination**: For when there are many issues
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Setup Instructions
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Create `.env.local` with Firebase config (see `.env.example`)
+4. Run development server: `npm run dev`
+5. Open http://localhost:3000
+
+## Tech Stack
+
+- **Frontend**: Next.js 14 (App Router), React, TypeScript, Tailwind CSS
+- **Backend**: Firebase Firestore
+- **Authentication**: Firebase Auth
+- **Hosting**: Vercel
